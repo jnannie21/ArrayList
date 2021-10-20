@@ -1,6 +1,6 @@
 package util;
 
-import java.util.Collection;
+import java.util.*;
 
 /**
  * Implementation of {@link ArrayList lava.util.ArrayList}
@@ -8,7 +8,7 @@ import java.util.Collection;
  * @author Dmitry Polushkin
  * @see ArrayList
  */
-public class ArrayList<E> implements List<E> {
+public class ArrayList<E> implements util.List<E> {
     /**
      * Array of elements contained in ArrayList.
      */
@@ -24,14 +24,12 @@ public class ArrayList<E> implements List<E> {
      */
     private static final int DEFAULT_INITIAL_CAPACITY = 10;
 
-
     /**
      * Default constructor.
      * Initialize a list with default capacity of 10.
      */
-    ArrayList() {
+    public ArrayList() {
         this(DEFAULT_INITIAL_CAPACITY);
-//        System.out.println("DEFAULT_INITIAL_CAPACITY is " + DEFAULT_INITIAL_CAPACITY);
     }
 
     /**
@@ -39,7 +37,7 @@ public class ArrayList<E> implements List<E> {
      * Elements are not cloned.
      * @param c Collection to initialize this list.
      */
-    ArrayList(Collection<? extends E> c) {
+    public ArrayList(Collection<? extends E> c) {
         elementData = (E[])c.toArray();
         size = elementData.length;
     }
@@ -48,7 +46,7 @@ public class ArrayList<E> implements List<E> {
      * Creates a list with specified initial capacity
      * @param initialCapacity initial capacity.
      */
-    ArrayList(int initialCapacity) {
+    public ArrayList(int initialCapacity) {
         if (initialCapacity >= 0) {
             elementData = (E[]) new Object[initialCapacity];
         } else {
@@ -86,6 +84,34 @@ public class ArrayList<E> implements List<E> {
      */
     public E get(int index) {
         return elementData[index];
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof ArrayList))
+            return false;
+        ArrayList<?> arrayList = (ArrayList<?>) o;
+        if (size != arrayList.size())
+            return false;
+        for (int idx = 0; idx < size; idx++) {
+            if (!elementData[idx].equals(arrayList.elementData[idx]))
+                return false;
+        }
+        return true;
+    }
+
+    /**
+     * The same implementation as in {@link List#hashCode() lava.util.List.hashCode()}.
+     * @return generated hash code.
+     */
+    @Override
+    public int hashCode() {
+        int hashCode = 1;
+        for (E e : elementData)
+            hashCode = 31 * hashCode + (e == null ? 0 : e.hashCode());
+        return hashCode;
     }
 
     /**
@@ -141,8 +167,62 @@ public class ArrayList<E> implements List<E> {
     }
 
     /**
-     *
-     * @return string representation of this ArrayList
+     * Get current amount of elements in this list.
+     * @return amount of elements.
+     */
+    public int size() {
+        return size;
+    }
+
+    public E set(int index, E element) {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
+        return elementData[index] = element;
+    }
+
+    /**
+     * Sort elements in this list in ascending order using specified Comparator.
+     * If comparator is null, sort in natural order.
+     * @param c comparator used to compare elements.
+     */
+    public void sort(Comparator<? super E> c) {
+        if (c == null) {
+            c = (o1, o2) -> ((Comparable)o1).compareTo((Comparable)o2);
+        }
+        quickSort(c, elementData, 0, size - 1);
+    }
+
+    /**
+     * Actual sorting with not null Comparator.
+     * @param c comparator used to compare elements.
+     */
+    private void quickSort(Comparator<? super E> c, E[] elements, int start, int end) {
+        if (start >= end) {
+            return ;
+        }
+
+        int idx = start;
+        int pivotIdx = end;
+        while (idx != pivotIdx) {
+            if ((idx < pivotIdx && c.compare(elements[idx], elements[pivotIdx]) > 0) ||
+                    (idx > pivotIdx && c.compare(elements[idx], elements[pivotIdx]) <= 0)) {
+
+                Collections.swap(Arrays.asList(elements), idx, pivotIdx);
+                int tmp = idx;
+                idx = pivotIdx;
+                pivotIdx = tmp;
+            }
+            idx += (idx < pivotIdx) ? 1 : -1;
+        }
+
+        quickSort(c, elements, start, pivotIdx - 1);
+        quickSort(c, elements, pivotIdx + 1, end);
+    }
+
+    /**
+     * Get String representation of this list.
+     * @return String representation of this list.
      */
     @Override
     public String toString() {
@@ -158,4 +238,14 @@ public class ArrayList<E> implements List<E> {
         str += "]";
         return str;
     }
+
+//    /**
+//     * Taken from https://www.baeldung.com/java-generic-array
+//     * @param a
+//     * @param <E>
+//     * @return
+//     */
+//    public <E> E[] toArray(E[] a) {
+//        return (E[])java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
+//    }
 }
