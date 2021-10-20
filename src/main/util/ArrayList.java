@@ -1,6 +1,5 @@
 package util;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -9,7 +8,7 @@ import java.util.Collection;
  * @author Dmitry Polushkin
  * @see ArrayList
  */
-public class ArrayList<E> {
+public class ArrayList<E> implements List<E> {
     /**
      * Array of elements contained in ArrayList.
      */
@@ -41,15 +40,7 @@ public class ArrayList<E> {
      * @param c Collection to initialize this list.
      */
     ArrayList(Collection<? extends E> c) {
-        elementData = (E[])Arrays.copyOf(c.toArray(), c.size());
-
-//        this(c.size());
-//
-//        int i = 0;
-//        for (E el : c) {
-//            elementData[i++] = el;
-//        }
-
+        elementData = (E[])c.toArray();
         size = elementData.length;
     }
 
@@ -77,22 +68,82 @@ public class ArrayList<E> {
     }
 
     /**
+     * Adding element after specified index.
+     * @param index index.
+     * @param element element.
+     */
+    public void add(int index, E element) {
+        ensureCapacity(size + 1);
+        System.arraycopy(elementData, index, elementData, index + 1, size - index);
+        elementData[index] = element;
+        size++;
+    }
+
+    /**
+     * Get element at specified index.
+     * @param index index of element.
+     * @return element at the index.
+     */
+    public E get(int index) {
+        return elementData[index];
+    }
+
+    /**
      * Increases the list capacity to at least specified capacity.
      * @param minCapacity specified capacity.
      */
     public void ensureCapacity(int minCapacity) {
+        int newCapacity;
         if (minCapacity > elementData.length) {
-            int newCapacity = elementData.length + elementData.length / 2 + 1;
-            if (minCapacity > newCapacity) {
-                newCapacity = minCapacity;
+            int growth = elementData.length / 2 + 1;
+            if (Integer.MAX_VALUE - elementData.length < growth) {
+                newCapacity = Integer.MAX_VALUE;
+            } else {
+                newCapacity = elementData.length + growth;
+                if (minCapacity > newCapacity) {
+                    newCapacity = minCapacity;
+                }
             }
             E[] oldData = elementData;
             elementData = (E[])new Object[newCapacity];
             System.arraycopy(oldData, 0, elementData, 0, oldData.length);
-//            elements = Arrays.copyOf(elements, newCapacity);
         }
     }
 
+    /**
+     * Removes element at specified index.
+     * @param index index.
+     * @return removed element.
+     */
+    public E remove(int index) {
+        int numMoved = size - index - 1;
+        System.arraycopy(elementData, index + 1, elementData, index, numMoved);
+        size--;
+        E ret = elementData[size];
+        elementData[size] = null;
+        return ret;
+    }
+
+    /**
+     * Removes first occurrence of specified element in this list
+     * or does nothing if there is no such element.
+     * @param o element to remove.
+     * @return true if element is found, false otherwise.
+     */
+    public boolean remove(Object o) {
+        for (int index = 0; index < elementData.length; index++) {
+            if (elementData[index].equals(o)) {
+                remove(index);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     *
+     * @return string representation of this ArrayList
+     */
     @Override
     public String toString() {
         String str = "[";
