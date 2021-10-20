@@ -1,4 +1,4 @@
-package utils;
+package util;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -6,8 +6,8 @@ import java.util.Collection;
 /**
  * Implementation of {@link ArrayList lava.util.ArrayList}
  * @param <E> Type of elements
- * @author  Dmitry Polushkin
- * @see     ArrayList
+ * @author Dmitry Polushkin
+ * @see ArrayList
  */
 public class ArrayList<E> {
     /**
@@ -32,6 +32,7 @@ public class ArrayList<E> {
      */
     ArrayList() {
         this(DEFAULT_INITIAL_CAPACITY);
+//        System.out.println("DEFAULT_INITIAL_CAPACITY is " + DEFAULT_INITIAL_CAPACITY);
     }
 
     /**
@@ -92,4 +93,18 @@ public class ArrayList<E> {
         }
     }
 
+    @Override
+    public String toString() {
+        String str = "[";
+
+        for (int i = 0; i < size; i++) {
+            str += elementData[i];
+            if (i + 1 < size) {
+                str += ", ";
+            }
+        }
+
+        str += "]";
+        return str;
+    }
 }
