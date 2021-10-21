@@ -1,6 +1,7 @@
 package util;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
@@ -212,11 +213,29 @@ public class ArrayList<E> implements util.List<E> {
         if (c == null) {
             c = (o1, o2) -> ((Comparable)o1).compareTo((Comparable)o2);
         }
+        if (checkIfListAlreadySorted(c)) {
+            return ;
+        }
         quickSort(c, elementData, 0, size - 1);
     }
 
     /**
+     * Check if this list is already sorted.
+     * @param c comparator to compare elements.
+     * @return true if this list already sorted.
+     */
+    private boolean checkIfListAlreadySorted(Comparator<? super E> c) {
+        for (int i = 1; i < size; i++) {
+            if (c.compare(elementData[i], elementData[i - 1]) < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * Actual sorting with not null Comparator.
+     * Sorts using quick sort algorithm.
      * @param c comparator used to compare elements.
      */
     private void quickSort(Comparator<? super E> c, E[] elements, int start, int end) {
@@ -225,12 +244,14 @@ public class ArrayList<E> implements util.List<E> {
         }
 
         int idx = start;
-        int pivotIdx = end;
+        int pivotIdx = choosePivotElement(c, start, end);
+        swapElements(pivotIdx, end);
+        pivotIdx = end;
         while (idx != pivotIdx) {
             if ((idx < pivotIdx && c.compare(elements[idx], elements[pivotIdx]) > 0) ||
                     (idx > pivotIdx && c.compare(elements[idx], elements[pivotIdx]) <= 0)) {
 
-                Collections.swap(Arrays.asList(elements), idx, pivotIdx);
+                swapElements(idx, pivotIdx);
                 int tmp = idx;
                 idx = pivotIdx;
                 pivotIdx = tmp;
@@ -240,6 +261,36 @@ public class ArrayList<E> implements util.List<E> {
 
         quickSort(c, elements, start, pivotIdx - 1);
         quickSort(c, elements, pivotIdx + 1, end);
+    }
+
+    /**
+     * Swap elements of this list at specified indexes.
+     */
+    private void swapElements(int i, int j) {
+        E tmp = elementData[i];
+        elementData[i] = elementData[j];
+        elementData[j] = tmp;
+    }
+
+    /**
+     * Choosing pivot element from first, last and middle element.
+     * @param c comparator used to compare elements.
+     * @return index of pivot element.
+     */
+    private int choosePivotElement(Comparator<? super E> c, int first, int last) {
+        int middle = first + (last - first) / 2;
+        if (c.compare(elementData[middle], elementData[first]) > 0) { // first, middle ? last
+            if (c.compare(elementData[last], elementData[middle]) > 0) { // first, middle, last
+                return middle;
+            }
+            return (c.compare(elementData[last], elementData[first]) > 0) ? last : first;
+        }
+
+        // middle, first ? last
+        if (c.compare(elementData[last], elementData[first]) > 0) {
+            return last; //middle, first, last
+        }
+        return (c.compare(elementData[last], elementData[middle]) > 0) ? last : middle;
     }
 
     /**
@@ -448,7 +499,47 @@ public class ArrayList<E> implements util.List<E> {
         return isChanged;
     }
 
+    /**
+     * Applies specified action to all elements of this list.
+     * @param action action to apply to all elements of this list.
+     */
+    public void forEach(Consumer<? super E> action) {
+        for (E t : elementData) {
+            action.accept(t);
+        }
+    }
+
+    /**
+     * Check if this list contains all elements of specified collection.
+     * @param c collection, elements of which is checked.
+     * @return true if this list contains all elements of specified collection.
+     */
+    public boolean containsAll(Collection<?> c) {
+        for (Object e : c) {
+            if (!contains(e)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Element comparison as in java.util.ArrayList
+     * @param o1 first element to compare.
+     * @param o2 second element to compare.
+     * @return true if elements equals or if both null.
+     */
     private boolean compareElements(Object o1, Object o2) {
         return o1 == null ? o2 == null : o1.equals(o2);
     }
+
+//    public class SmallerList extends util.List<E> {
+//        E[] elementData;
+//        int start = 0, end = 0;
+//        int size = 0;
+//
+//        public SmallerList() {
+//            elementData = ArrayList.this.elementData;
+//        }
+//    }
 }

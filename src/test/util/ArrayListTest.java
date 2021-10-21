@@ -630,4 +630,71 @@ class ArrayListTest {
                 "Expected addAll() to throw, but it didn't"
         );
     }
+
+    @Test
+    void forEach_NullConsumer_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(1, 2, null, null, 1, 0, -1));
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> list.forEach(null),
+                "Expected forEach() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void forEach_ApplyToNotEmptyList_Success() {
+        util.ArrayList<StringBuilder> actual = new util.ArrayList<>(Arrays.asList(
+                new StringBuilder("a"),
+                new StringBuilder("b"),
+                new StringBuilder("c"),
+                new StringBuilder("d")));
+        util.ArrayList<StringBuilder> expected = new util.ArrayList<>(Arrays.asList(
+                new StringBuilder("x"),
+                new StringBuilder("x"),
+                new StringBuilder("x"),
+                new StringBuilder("x")));
+        actual.forEach(el -> el.setCharAt(0, 'x'));
+        Assertions.assertEquals(expected.toString(), actual.toString());
+    }
+
+    @Test
+    void containsAll_WithNullCollectionPassed_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 13));
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> list.containsAll(null),
+                "Expected containsAll() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void containsAll_WithEmptyListAndNotEmptyCollection_False() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        Assertions.assertFalse(list.containsAll(Arrays.asList(13)));
+    }
+
+    @Test
+    void containsAll_WithNulls_True() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        list.add(null);
+        Assertions.assertTrue(list.containsAll(Arrays.asList(null, null)));
+    }
+
+    @Test
+    void containsAll_WithEmptyListAndEmptyCollection_False() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        Assertions.assertTrue(list.containsAll(Arrays.asList()));
+    }
+
+    @Test
+    void containsAll_WithNotEmptyListAndNotEmptyCollection_True() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 0, 0, null));
+        Assertions.assertTrue(list.containsAll(Arrays.asList(null, 0, 11, null)));
+    }
+
+    @Test
+    void containsAll_WithNotEmptyListAndNotEmptyCollection_False() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 0, 0, null));
+        Assertions.assertFalse(list.containsAll(Arrays.asList(null, 0, 11, null, -1)));
+    }
 }
