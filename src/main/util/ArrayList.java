@@ -62,8 +62,9 @@ public class ArrayList<E> implements util.List<E> {
      * @return true if there's no exceptions happened.
      */
     public boolean add(E e) {
-        ensureCapacity(size + 1);
-        elementData[size++] = e;
+        add(size, e);
+//        ensureCapacity(size + 1);
+//        elementData[size++] = e;
         return true;
     }
 
@@ -74,9 +75,6 @@ public class ArrayList<E> implements util.List<E> {
      * @throws IndexOutOfBoundsException if index < 0 or index > size.
      */
     public void add(int index, E element) {
-        if (index > size) {
-            throw new IndexOutOfBoundsException();
-        }
         ensureCapacity(size + 1);
         System.arraycopy(elementData, index, elementData, index + 1, size - index);
         elementData[index] = element;
@@ -87,8 +85,12 @@ public class ArrayList<E> implements util.List<E> {
      * Get element at specified index.
      * @param index index of element.
      * @return element at the index.
+     * @throws IndexOutOfBoundsException if index < 0 or index >= size.
      */
     public E get(int index) {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
         return elementData[index];
     }
 
@@ -147,8 +149,12 @@ public class ArrayList<E> implements util.List<E> {
      * Removes element at specified index.
      * @param index index.
      * @return removed element.
+     * @throws IndexOutOfBoundsException if index < 0 or index >= size.
      */
     public E remove(int index) {
+        if (index >= size) {
+            throw new IndexOutOfBoundsException();
+        }
         int toMove = size - index - 1;
         System.arraycopy(elementData, index + 1, elementData, index, toMove);
         size--;
@@ -186,6 +192,7 @@ public class ArrayList<E> implements util.List<E> {
      * @param index index at which element must be set.
      * @param element element to set.
      * @return previous element at specified index.
+     * @throws IndexOutOfBoundsException if index < 0 or index >= size.
      */
     public E set(int index, E element) {
         if (index >= size) {
@@ -434,7 +441,7 @@ public class ArrayList<E> implements util.List<E> {
         boolean isChanged = false;
         for (int i = 0; i < size; i++) {
             if (!c.contains(elementData[i])) {
-                remove(i);
+                remove(i--);
                 isChanged = true;
             }
         }

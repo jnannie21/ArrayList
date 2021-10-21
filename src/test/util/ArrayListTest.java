@@ -27,22 +27,101 @@ class ArrayListTest {
     }
 
     @Test
-    void constructor_ConstructingWithNullElement_Success() {
+    void constructor_ConstructingWithCollectionWhichContainsNullElement_Success() {
         util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, -1));
         Assertions.assertEquals(3, list.size());
         Assertions.assertEquals(null, list.get(1));
     }
 
     @Test
-    void add_AddingNullElement_Added() {
+    void constructor_ConstructingWithEmptyCollection_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList());
+        Assertions.assertEquals(0, list.size());
+    }
+
+    @Test
+    void constructor_ConstructingWithNull_ExceptionThrown() {
+        NullPointerException thrown = Assertions.assertThrows(
+                NullPointerException.class,
+                () -> new util.ArrayList<>(null),
+                "Expected new util.ArrayList<>(null) to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void equals_CheckEqualityOfEmptyLists_Success() {
+        util.ArrayList<Integer> list1 = new util.ArrayList<>();
+        util.ArrayList<Integer> list2 = new util.ArrayList<>();
+        Assertions.assertTrue(list1.equals(list2));
+    }
+
+    @Test
+    void equals_CheckEqualityOfNotEmptyLists_Success() {
+        util.ArrayList<Integer> list1 = new util.ArrayList<>(Arrays.asList(null, 1, null, -123));
+        util.ArrayList<Integer> list2 = new util.ArrayList<>(Arrays.asList(null, 1, null, -123));
+        Assertions.assertTrue(list1.equals(list2));
+    }
+
+    @Test
+    void equals_CheckEqualityWithNull_Success() {
+        util.ArrayList<Integer> list1 = new util.ArrayList<>(Arrays.asList(null, 1, null, -123));
+        Assertions.assertFalse(list1.equals(null));
+    }
+
+    @Test
+    void equals_CheckEqualityWithItself_Success() {
+        util.ArrayList<Integer> list1 = new util.ArrayList<>(Arrays.asList(null, 1, null, -123));
+        Assertions.assertTrue(list1.equals(list1));
+    }
+
+    @Test
+    void get_GetElementWithNotValidIndex_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        IndexOutOfBoundsException thrown = Assertions.assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> list.get(0),
+                "Expected get() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void get_GetElementWithNegativeIndex_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        IndexOutOfBoundsException thrown = Assertions.assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> list.get(-1),
+                "Expected get() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void get_GetElementWithValidIndex_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11));
+        Assertions.assertEquals(1, list.size());
+        Assertions.assertEquals(11, list.get(0));
+    }
+
+    @Test
+    void add_AddingSeveralNullElements_Success() {
         util.ArrayList<Integer> list = new util.ArrayList<>();
         list.add(null);
-        Assertions.assertEquals(1, list.size());
+        list.add(null);
+        Assertions.assertEquals(2, list.size());
         Assertions.assertEquals(null, list.get(0));
     }
 
     @Test
-    void add_AddingElementAtIndexThatEqualsSize_Added() {
+    void add_AddingAtNegativeIndex_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        Assertions.assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> list.add(-1, 13),
+                "Expected add() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void add_AddingElementAtIndexThatEqualsSize_Success() {
         util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11));
         list.add(1, 13);
         Assertions.assertEquals(2, list.size());
@@ -50,7 +129,17 @@ class ArrayListTest {
     }
 
     @Test
-    void remove_RemovingFirstElementByIndex_Removed() {
+    void add_AddingElementAtIndexThatBiggerThanSize_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11));
+        IndexOutOfBoundsException thrown = Assertions.assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> list.add(2, 13),
+                "Expected add() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void remove_RemovingFirstElementByIndex_Success() {
         util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 13, -1));
         list.remove(0);
         Assertions.assertEquals(2, list.size());
@@ -58,7 +147,7 @@ class ArrayListTest {
     }
 
     @Test
-    void remove_RemovingLastElementByIndex_Removed() {
+    void remove_RemovingLastElementByIndex_Success() {
         util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 13, -1));
         list.remove(2);
         Assertions.assertEquals(2, list.size());
@@ -74,6 +163,63 @@ class ArrayListTest {
                 () -> list.remove(0),
                 "Expected remove() to throw, but it didn't"
         );
+    }
+
+    @Test
+    void remove_RemovingElementByInvalidIndex_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 13));
+
+        IndexOutOfBoundsException thrown = Assertions.assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> list.remove(2),
+                "Expected remove() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void remove_RemovingElementByNegativeIndex_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 13));
+
+        IndexOutOfBoundsException thrown = Assertions.assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> list.remove(-1),
+                "Expected remove() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void remove_RemovingElementByNullObject_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 7));
+        Assertions.assertTrue(list.contains(null));
+        list.remove(null);
+        Assertions.assertEquals(2, list.size());
+        Assertions.assertFalse(list.contains(null));
+    }
+
+    @Test
+    void remove_RemovingInteger_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 7));
+        Assertions.assertTrue(list.contains(7));
+        list.remove(Integer.valueOf(7));
+        Assertions.assertEquals(2, list.size());
+        Assertions.assertFalse(list.contains(7));
+    }
+
+    @Test
+    void remove_RemovingString_Success() {
+        util.ArrayList<String> list = new util.ArrayList<>(Arrays.asList("cem"));
+        Assertions.assertTrue(list.contains("cem"));
+        list.remove("cem");
+        Assertions.assertEquals(0, list.size());
+        Assertions.assertFalse(list.contains("cem"));
+    }
+
+    @Test
+    void remove_RemovingWithSeveralEqualsElements_Success() {
+        util.ArrayList<String> list = new util.ArrayList<>(Arrays.asList("cem", "odin", "cem"));
+        list.remove("cem");
+        Assertions.assertEquals(2, list.size());
+        Assertions.assertEquals("cem", list.get(1));
     }
 
     @Test
@@ -93,14 +239,52 @@ class ArrayListTest {
     }
 
     @Test
-    void sort_SortingListEmptyList_Success() {
+    void set_SetElementWithIndexEqualSize_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 0));
+        IndexOutOfBoundsException thrown = Assertions.assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> list.set(3, 22),
+                "Expected set() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void set_SetElementWithNegativeIndex_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 0));
+        IndexOutOfBoundsException thrown = Assertions.assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> list.set(-1, 22),
+                "Expected set() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void set_SetElementAtEmptyList_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+
+        IndexOutOfBoundsException thrown = Assertions.assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> list.set(0, 123),
+                "Expected set() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void set_SetElementAtValidIndex_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(-1));
+        Assertions.assertEquals(-1, list.set(0, 123));
+        Assertions.assertEquals(123, list.get(0));
+    }
+
+    @Test
+    void sort_SortingEmptyList_Success() {
         util.ArrayList<Integer> list = new util.ArrayList<>();
         list.sort(null);
         Assertions.assertEquals(0, list.size());
     }
 
     @Test
-    void sort_SortingListWith1Element_Success() {
+    void sort_SortingWithOneElement_Success() {
         util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(7));
         list.sort(null);
         Assertions.assertEquals(1, list.size());
@@ -108,7 +292,7 @@ class ArrayListTest {
     }
 
     @Test
-    void sort_SortingListWith5Elements_Success() {
+    void sort_SortingListWithSeveralElements_Success() {
         util.ArrayList<Integer> expected = new util.ArrayList<>(Arrays.asList(-1, 7, 11, 13, 13));
         util.ArrayList<Integer> actual = new util.ArrayList<>(Arrays.asList(11, 7, 13, -1, 13));
         actual.sort(null);
@@ -116,7 +300,7 @@ class ArrayListTest {
     }
 
     @Test
-    void sort_SortingSortedListWith5Elements_Success() {
+    void sort_SortingListWithSeveralSortedElements_Success() {
         util.ArrayList<Integer> expected = new util.ArrayList<>(Arrays.asList(7, 11, 13, 13, 17));
         util.ArrayList<Integer> actual = new util.ArrayList<>(Arrays.asList(7, 11, 13, 13, 17));
         actual.sort(null);
@@ -135,20 +319,287 @@ class ArrayListTest {
     }
 
     @Test
-    void set_SetElementAtValidIndex_Success() {
-        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(-1));
-        Assertions.assertEquals(-1, list.set(0, 123));
-        Assertions.assertEquals(123, list.get(0));
+    void clear_ClearEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        list.clear();
+        Assertions.assertEquals(0, list.size());
     }
 
     @Test
-    void set_SetElementAtInvalidIndex_ExceptionThrown() {
-        util.ArrayList<Integer> list = new util.ArrayList<>();
+    void clear_ClearNotEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 13, null, 0));
+        list.clear();
+        Assertions.assertEquals(0, list.size());
+    }
 
+    @Test
+    void contains_CheckIfEmptyListContainsElement_False() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        Assertions.assertFalse(list.contains(13));
+    }
+
+    @Test
+    void contains_CheckIfListContainsElement_True() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 13, null, 0));
+        Assertions.assertTrue(list.contains(0));
+    }
+
+    @Test
+    void contains_CheckIfListContainsNull_True() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 13, null, 0));
+        Assertions.assertTrue(list.contains(null));
+    }
+
+    @Test
+    void indexOf_FindIndexInEmptyList_Failure() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        Assertions.assertEquals(-1, list.indexOf(13));
+    }
+
+    @Test
+    void indexOf_FindIndexOfExistingElementInList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, null, null, 11));
+        Assertions.assertEquals(1, list.indexOf(null));
+    }
+
+    @Test
+    void indexOf_FindIndexOfNotExistingElementInList_Failure() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, null, null, 11));
+        Assertions.assertEquals(-1, list.indexOf(22));
+    }
+
+    @Test
+    void isEmpty_CheckIfEmptyListIsEmpty_True() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        Assertions.assertTrue(list.isEmpty());
+    }
+
+    @Test
+    void isEmpty_CheckIfNotEmptyListIsEmpty_False() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, null, null, 11));
+        Assertions.assertFalse(list.isEmpty());
+    }
+
+    @Test
+    void lastIndexOf_CheckInNotEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, null, null, 11, 11));
+        Assertions.assertEquals(4, list.lastIndexOf(11));
+    }
+
+    @Test
+    void lastIndexOf_CheckInEmptyList_Failure() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        Assertions.assertEquals(-1, list.lastIndexOf(null));
+    }
+
+    @Test
+    void lastIndexOf_CheckNullInNotEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, null, null, 11, 11));
+        Assertions.assertEquals(2, list.lastIndexOf(null));
+    }
+
+    @Test
+    void toArray_CheckNotEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, null, null, 11, 11));
+        Assertions.assertArrayEquals(new Integer[]{13, null, null, 11, 11}, list.toArray());
+    }
+
+    @Test
+    void toArray_CheckEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        Assertions.assertArrayEquals(new Integer[]{}, list.toArray());
+    }
+
+    @Test
+    void toArray_CheckOneNullElementList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        list.add(null);
+        Assertions.assertArrayEquals(new Integer[]{null}, list.toArray());
+    }
+
+    @Test
+    void toArray_CheckWithArrayAsArgumentWithEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        Integer[] expected = new Integer[10];
+        Assertions.assertArrayEquals(expected, list.toArray(expected));
+    }
+
+    @Test
+    void toArray_CheckWithArrayAsArgumentWithNotEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 13, null, null));
+        Integer[] expected = new Integer[10];
+        Assertions.assertTrue(expected == list.toArray(expected));
+        Assertions.assertEquals(null, expected[4]);
+    }
+
+    @Test
+    void addAll_AddNullAsCollection_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 13));
+
+        NullPointerException thrown = Assertions.assertThrows(
+                NullPointerException.class,
+                () -> list.addAll(null),
+                "Expected addAll() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void addAll_AddCollectionInEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        list.addAll(Arrays.asList(13, null, null, 11));
+        Assertions.assertEquals(4, list.size());
+        Assertions.assertEquals(11, list.get(3));
+    }
+
+    @Test
+    void addAll_AddCollectionToNotEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, null, null, 11));
+        list.addAll(Arrays.asList(13, null, null, 11));
+        Assertions.assertEquals(8, list.size());
+        Assertions.assertEquals(11, list.get(7));
+    }
+
+    @Test
+    void addAll_AddCollectionAtSpecifiedIndexThatEqualsSizeInNotEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, null, null, 11));
+        list.addAll(4, Arrays.asList(13, null, null, 11));
+        Assertions.assertEquals(8, list.size());
+        Assertions.assertEquals(11, list.get(7));
+    }
+
+    @Test
+    void addAll_AddCollectionAtSpecifiedIndexInNotEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, null, null, 11));
+        list.addAll(3, Arrays.asList(13, null, null));
+        Assertions.assertEquals(11, list.get(6));
+        Assertions.assertEquals(null, list.get(5));
+    }
+
+    @Test
+    void addAll_AddCollectionAtNotValidIndexInEmptyList_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
         IndexOutOfBoundsException thrown = Assertions.assertThrows(
                 IndexOutOfBoundsException.class,
-                () -> list.set(0, 123),
-                "Expected set() to throw, but it didn't"
+                () -> list.addAll(1, Arrays.asList(13, null, null, 11)),
+                "Expected addAll() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void addAll_AddCollectionAtNegativeIndexInNotEmptyList_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 13));
+        IndexOutOfBoundsException thrown = Assertions.assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> list.addAll(-1, Arrays.asList(13, null, null, 11)),
+                "Expected addAll() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void addAll_AddNullAtValidIndex_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 13));
+        NullPointerException thrown = Assertions.assertThrows(
+                NullPointerException.class,
+                () -> list.addAll(1, null),
+                "Expected addAll() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void removeAll_RemoveAllWithNullAsCollection_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 13));
+        NullPointerException thrown = Assertions.assertThrows(
+                NullPointerException.class,
+                () -> list.removeAll(null),
+                "Expected removeAll() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void removeAll_RemoveAllWithTheSameCollection_Success() {
+        java.util.List<Integer> l = Arrays.asList(11, null, 13);
+        util.ArrayList<Integer> list = new util.ArrayList<>(l);
+        list.removeAll(l);
+        Assertions.assertEquals(0, list.size());
+    }
+
+    @Test
+    void removeAll_RemoveAllWithSeveralMatches_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 13));
+        list.removeAll(Arrays.asList(null, 13));
+        Assertions.assertEquals(1, list.size());
+        Assertions.assertEquals(11, list.get(0));
+    }
+
+    @Test
+    void removeIf_RemoveIf_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 13));
+        list.removeIf(el -> el == null);
+        Assertions.assertEquals(2, list.size());
+        Assertions.assertFalse(list.contains(null));
+    }
+
+    @Test
+    void removeIf_RemoveIfWithNullAsFilter_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 13));
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> list.removeIf(null),
+                "Expected removeIf() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void replaceAll_ReplaceAllWithNullAsOperator_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 13));
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> list.replaceAll(null),
+                "Expected replaceAll() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void replaceAll_ReplaceAllWithNotEmptyList_Success() {
+        util.ArrayList<Integer> list1 = new util.ArrayList<>(Arrays.asList(11, 14));
+        util.ArrayList<Integer> list2 = new util.ArrayList<>(Arrays.asList(null, null));
+        list1.replaceAll(el -> null);
+        Assertions.assertEquals(list1, list2);
+    }
+
+    @Test
+    void replaceAll_ReplaceAllWithEmptyList_Success() {
+        util.ArrayList<Integer> list1 = new util.ArrayList<>();
+        util.ArrayList<Integer> list2 = new util.ArrayList<>();
+        list1.replaceAll(el -> null);
+        Assertions.assertEquals(list1, list2);
+    }
+
+    @Test
+    void retainAll_RetainAllWithEmptyList_Success() {
+        util.ArrayList<Integer> actual = new util.ArrayList<>();
+        util.ArrayList<Integer> expected = new util.ArrayList<>();
+        actual.retainAll(Arrays.asList(1, 2));
+        Assertions.assertEquals(0, actual.size());
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    void retainAll_RetainAllWithNotEmptyList_Success() {
+        util.ArrayList<Integer> actual = new util.ArrayList<>(Arrays.asList(1, 2, null, null, 1, 0, -1));
+        util.ArrayList<Integer> expected = new util.ArrayList<>(Arrays.asList(1, null, null, 1));
+        actual.retainAll(Arrays.asList(1, null));
+        Assertions.assertEquals(4, actual.size());
+        Assertions.assertEquals(expected, actual);
+    }
+
+    @Test
+    void retainAll_RetainAllWithNullAsCollection_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(1, 2, null, null, 1, 0, -1));
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> list.retainAll(null),
+                "Expected retainAll() to throw, but it didn't"
         );
     }
 
