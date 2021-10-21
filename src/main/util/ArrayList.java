@@ -1,6 +1,8 @@
 package util;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 /**
  * Implementation of {@link ArrayList lava.util.ArrayList}
@@ -69,8 +71,12 @@ public class ArrayList<E> implements util.List<E> {
      * Adding element after specified index.
      * @param index index.
      * @param element element.
+     * @throws IndexOutOfBoundsException if index < 0 or index > size.
      */
     public void add(int index, E element) {
+        if (index > size) {
+            throw new IndexOutOfBoundsException();
+        }
         ensureCapacity(size + 1);
         System.arraycopy(elementData, index, elementData, index + 1, size - index);
         elementData[index] = element;
@@ -90,13 +96,13 @@ public class ArrayList<E> implements util.List<E> {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof ArrayList))
+        if (!(o instanceof util.List))
             return false;
-        ArrayList<?> arrayList = (ArrayList<?>) o;
+        ArrayList<E> arrayList = (ArrayList<E>) o;
         if (size != arrayList.size())
             return false;
         for (int idx = 0; idx < size; idx++) {
-            if (!elementData[idx].equals(arrayList.elementData[idx]))
+            if (!compareElements(elementData[idx], arrayList.elementData[idx]))
                 return false;
         }
         return true;
@@ -142,8 +148,8 @@ public class ArrayList<E> implements util.List<E> {
      * @return removed element.
      */
     public E remove(int index) {
-        int numMoved = size - index - 1;
-        System.arraycopy(elementData, index + 1, elementData, index, numMoved);
+        int toMove = size - index - 1;
+        System.arraycopy(elementData, index + 1, elementData, index, toMove);
         size--;
         E ret = elementData[size];
         elementData[size] = null;
@@ -158,7 +164,7 @@ public class ArrayList<E> implements util.List<E> {
      */
     public boolean remove(Object o) {
         for (int index = 0; index < elementData.length; index++) {
-            if (elementData[index].equals(o)) {
+            if (compareElements(elementData[index], o)) {
                 remove(index);
                 return true;
             }
@@ -239,13 +245,194 @@ public class ArrayList<E> implements util.List<E> {
         return str;
     }
 
-//    /**
-//     * Taken from https://www.baeldung.com/java-generic-array
-//     * @param a
-//     * @param <E>
-//     * @return
-//     */
-//    public <E> E[] toArray(E[] a) {
-//        return (E[])java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), size);
-//    }
+    /**
+     * Remove all elements from this list.
+     * Will not change current list capacity.
+     */
+    public void clear() {
+        for (int idx = 0; idx < size; idx++) {
+            elementData[idx] = null;
+        }
+        size = 0;
+    }
+
+    /**
+     * Check if specified Object is in this list.
+     * @param o object to find.
+     * @return true if object found in the list, false otherwise.
+     */
+    public boolean contains(Object o) {
+        for (int idx = 0; idx < size; idx++) {
+            if (compareElements(elementData[idx], o)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns index of specified Object if it is in the list, -1 otherwise.
+     * @param o object to find.
+     * @return index of element if found, -1 otherwise.
+     */
+    public int indexOf(Object o) {
+        for (int idx = 0; idx < size; idx++) {
+            if (compareElements(elementData[idx], o)) {
+                return idx;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Checks if this list is empty.
+     * @return true if list is empty.
+     */
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+    /**
+     * Returns index of last occurrence of element, or -1.
+     * @param o element to search.
+     * @return index of last occurrence of element, or -1.
+     */
+    public int lastIndexOf(Object o) {
+        int index = -1;
+        for (int i = 0; i < size; i++) {
+            if (compareElements(elementData[i], o)) {
+                index = i;
+            }
+        }
+        return index;
+    }
+
+    /**
+     * Returns array of elements of this list.
+     * @return array of elements of this list
+     */
+    public Object[] toArray() {
+        return Arrays.copyOf(elementData, size);
+    }
+
+    /**
+     * Returns array with elements of this list.
+     * If list fits in specified array, its copied there and the array is returned.
+     * @param a array in which list copied if fits.
+     * @param <E> type of elements.
+     * @return passed as argument array if list elements fit in it, or newly created array.
+     */
+    public <E> E[] toArray(E[] a) {
+        if (a.length >= size) {
+            System.arraycopy(elementData,0, a, 0, size);
+            return a;
+        }
+        return (E[])Arrays.copyOf(elementData, size);
+    }
+
+    /**
+     * Makes capacity of this list equal to size.
+     */
+    public void trimToSize() {
+        if (elementData.length > size) {
+            elementData = Arrays.copyOf(elementData, size);
+        }
+    }
+
+    /**
+     * Appends elements of specified collection to the end of this list.
+     * @param c collection to append.
+     * @return true if this list changed.
+     * @throws NullPointerException if specified collection is null.
+     */
+    public boolean addAll(Collection<? extends E> c) {
+        for (E e : c) {
+            add(e);
+        }
+        return true;
+    }
+
+    /**
+     * Inserts elements of specified collection at specified index of this list.
+     * All elements of this list starting with index will be moved right, including element at index.
+     * @param index index at what collection will be inserted.
+     * @param c collection to insert.
+     * @return true if this list changed.
+     * @throws IndexOutOfBoundsException if index < 0 or index > size.
+     * @throws NullPointerException if specified collection is null.
+     */
+    public boolean addAll(int index, Collection<? extends E> c) {
+        if (index > size) {
+            throw new IndexOutOfBoundsException();
+        }
+        int collectionLength = 0;
+        for (E e : c) {
+            collectionLength++;
+        }
+        ensureCapacity(collectionLength + size);
+        System.arraycopy(elementData, index, elementData, index + collectionLength, size - index);
+        for (E e : c) {
+            elementData[index++] = e;
+        }
+        size += collectionLength;
+        return true;
+    }
+
+    /**
+     * Searches and removes all elements that present in this list and specified collection.
+     * @param c collection, which elements is searched in this list to remove.
+     * @return true if this list is changed.
+     */
+    public boolean removeAll(Collection<?> c) {
+        for (Object e : c) {
+            remove(e);
+        }
+        return true;
+    }
+
+    /**
+     * Removes all elements that satisfy given predicate.
+     * @param filter predicate that used to check if element should be removed.
+     * @return true if any element was removed.
+     */
+    public boolean removeIf(Predicate<? super E> filter) {
+        boolean anyRemoved = false;
+        for (int i = 0; i < size; i++) {
+            if (filter.test(elementData[i])) {
+                remove(i);
+                anyRemoved = true;
+            }
+        }
+        return anyRemoved;
+    }
+
+    /**
+     * Replaces all elements of this list with result of applying of operator.
+     * @param operator UnaryOperator that applies to all elements of this list.
+     */
+    public void replaceAll(UnaryOperator<E> operator) {
+        for (int i = 0; i < size; i++) {
+            elementData[i] = operator.apply(elementData[i]);
+        }
+    }
+
+    /**
+     * Retains only elements in this list that specified collection contains.
+     * @param c collection, which elements compared to this list's elements.
+     * @return true if this list is changed.
+     */
+    public boolean retainAll(Collection<?> c) {
+        boolean isChanged = false;
+        for (int i = 0; i < size; i++) {
+            if (!c.contains(elementData[i])) {
+                remove(i);
+                isChanged = true;
+            }
+        }
+        return isChanged;
+    }
+
+    private boolean compareElements(Object o1, Object o2) {
+        return o1 == null ? o2 == null : o1.equals(o2);
+    }
 }

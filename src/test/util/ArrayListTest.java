@@ -20,6 +20,13 @@ class ArrayListTest {
     }
 
     @Test
+    void testConstructingWithNullElement() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, -1));
+        Assertions.assertEquals(3, list.size());
+        Assertions.assertEquals(null, list.get(1));
+    }
+
+    @Test
     void testAdding5Elements() {
         util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 13, -1));
         Assertions.assertEquals(3, list.size());
@@ -28,9 +35,18 @@ class ArrayListTest {
 
     @Test
     void testAddingNullElement() {
-        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, -1));
-        Assertions.assertEquals(3, list.size());
-        Assertions.assertEquals(null, list.get(1));
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        list.add(null);
+        Assertions.assertEquals(1, list.size());
+        Assertions.assertEquals(null, list.get(0));
+    }
+
+    @Test
+    void testAddingElementAtIndexThatEqualsSize() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11));
+        list.add(1, 13);
+        Assertions.assertEquals(2, list.size());
+        Assertions.assertEquals(13, list.get(1));
     }
 
     @Test
@@ -150,5 +166,15 @@ class ArrayListTest {
 
         list.add("there");
         Assertions.assertEquals("[hello, there]", list.toString());
+    }
+
+    @Test
+    void testAddAllWithNullThrowsException() {
+        util.ArrayList<String> list = new util.ArrayList<>();
+        NullPointerException thrown = Assertions.assertThrows(
+                NullPointerException.class,
+                () -> list.addAll(null),
+                "Expected addAll() to throw, but it didn't"
+        );
     }
 }
