@@ -115,8 +115,9 @@ public class ArrayList<E> implements util.List<E> {
     @Override
     public int hashCode() {
         int hashCode = 1;
-        for (E e : elementData)
+        for (E e : elementData) {
             hashCode = 31 * hashCode + (e == null ? 0 : e.hashCode());
+        }
         return hashCode;
     }
 
@@ -180,11 +181,19 @@ public class ArrayList<E> implements util.List<E> {
         return size;
     }
 
+    /**
+     * Set specified element at specified index.
+     * @param index index at which element must be set.
+     * @param element element to set.
+     * @return previous element at specified index.
+     */
     public E set(int index, E element) {
         if (index >= size) {
             throw new IndexOutOfBoundsException();
         }
-        return elementData[index] = element;
+        E ret = elementData[index];
+        elementData[index] = element;
+        return ret;
     }
 
     /**
