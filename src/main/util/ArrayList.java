@@ -11,6 +11,7 @@ import java.util.function.UnaryOperator;
  * @author Dmitry Polushkin
  * @see ArrayList
  */
+@SuppressWarnings("unchecked")
 public class ArrayList<E> implements util.List<E> {
     /**
      * Array of elements contained in ArrayList.
@@ -101,11 +102,11 @@ public class ArrayList<E> implements util.List<E> {
             return true;
         if (!(o instanceof util.List))
             return false;
-        ArrayList<E> arrayList = (ArrayList<E>) o;
-        if (size != arrayList.size())
+        util.List<E> list = (util.List<E>) o;
+        if (size != list.size())
             return false;
         for (int idx = 0; idx < size; idx++) {
-            if (!compareElements(elementData[idx], arrayList.elementData[idx]))
+            if (!compareElements(elementData[idx], list.get(idx)))
                 return false;
         }
         return true;
@@ -532,14 +533,4 @@ public class ArrayList<E> implements util.List<E> {
     private boolean compareElements(Object o1, Object o2) {
         return o1 == null ? o2 == null : o1.equals(o2);
     }
-
-//    public class SmallerList extends util.List<E> {
-//        E[] elementData;
-//        int start = 0, end = 0;
-//        int size = 0;
-//
-//        public SmallerList() {
-//            elementData = ArrayList.this.elementData;
-//        }
-//    }
 }
