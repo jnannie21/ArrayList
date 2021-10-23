@@ -65,8 +65,6 @@ public class ArrayList<E> implements util.List<E> {
      */
     public boolean add(E e) {
         add(size, e);
-//        ensureCapacity(size + 1);
-//        elementData[size++] = e;
         return true;
     }
 
@@ -96,6 +94,14 @@ public class ArrayList<E> implements util.List<E> {
         return elementData[index];
     }
 
+    /**
+     * Checks for equality with Object o.
+     * Returns true if object the same object or if o is util.List, have same size
+     * and all corresponding elements in both lists are equal (checked by equal method).
+     * @param o object to check.
+     * @return true if object the same object or if o is util.List, have same size
+     * and all corresponding elements in both lists are equal (checked by equal method).
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -106,7 +112,7 @@ public class ArrayList<E> implements util.List<E> {
         if (size != list.size())
             return false;
         for (int idx = 0; idx < size; idx++) {
-            if (!compareElements(elementData[idx], list.get(idx)))
+            if (!isElementsEqual(elementData[idx], list.get(idx)))
                 return false;
         }
         return true;
@@ -173,7 +179,7 @@ public class ArrayList<E> implements util.List<E> {
      */
     public boolean remove(Object o) {
         for (int index = 0; index < elementData.length; index++) {
-            if (compareElements(elementData[index], o)) {
+            if (isElementsEqual(elementData[index], o)) {
                 remove(index);
                 return true;
             }
@@ -265,7 +271,7 @@ public class ArrayList<E> implements util.List<E> {
     }
 
     /**
-     * Swap elements of this list at specified indexes.
+     * Swaps elements of this list at specified indexes.
      */
     private void swapElements(int i, int j) {
         E tmp = elementData[i];
@@ -331,7 +337,7 @@ public class ArrayList<E> implements util.List<E> {
      */
     public boolean contains(Object o) {
         for (int idx = 0; idx < size; idx++) {
-            if (compareElements(elementData[idx], o)) {
+            if (isElementsEqual(elementData[idx], o)) {
                 return true;
             }
         }
@@ -345,7 +351,7 @@ public class ArrayList<E> implements util.List<E> {
      */
     public int indexOf(Object o) {
         for (int idx = 0; idx < size; idx++) {
-            if (compareElements(elementData[idx], o)) {
+            if (isElementsEqual(elementData[idx], o)) {
                 return idx;
             }
         }
@@ -368,7 +374,7 @@ public class ArrayList<E> implements util.List<E> {
     public int lastIndexOf(Object o) {
         int index = -1;
         for (int i = 0; i < size; i++) {
-            if (compareElements(elementData[i], o)) {
+            if (isElementsEqual(elementData[i], o)) {
                 index = i;
             }
         }
@@ -530,7 +536,7 @@ public class ArrayList<E> implements util.List<E> {
      * @param o2 second element to compare.
      * @return true if elements equals or if both null.
      */
-    private boolean compareElements(Object o1, Object o2) {
+    private boolean isElementsEqual(Object o1, Object o2) {
         return o1 == null ? o2 == null : o1.equals(o2);
     }
 }
