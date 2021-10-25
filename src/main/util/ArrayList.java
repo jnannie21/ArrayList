@@ -531,6 +531,14 @@ public class ArrayList<E> implements util.List<E> {
     }
 
     /**
+     * Get this list's java.lang.Iterator implementation.
+     * @return iterator to iterate over this list.
+     */
+    public Iterator<E> iterator() {
+        return new Itr();
+    }
+
+    /**
      * Element comparison as in java.util.ArrayList
      * @param o1 first element to compare.
      * @param o2 second element to compare.
@@ -538,5 +546,33 @@ public class ArrayList<E> implements util.List<E> {
      */
     private boolean isElementsEqual(Object o1, Object o2) {
         return o1 == null ? o2 == null : o1.equals(o2);
+    }
+
+    /**
+     * This list's java.lang.Iterator implementation.
+     */
+    private class Itr implements util.Iterator<E> {
+        private int current = 0;
+        private int last = -1;
+
+        public boolean	hasNext() {
+            return current < size;
+        }
+
+        public E next() {
+            if (current >= size) {
+                throw new NoSuchElementException();
+            }
+            last = current;
+            return elementData[current++];
+        }
+
+        public void remove() {
+            if (last == -1) {
+                throw new IllegalStateException();
+            }
+            ArrayList.this.remove(last);
+            last = -1;
+        }
     }
 }

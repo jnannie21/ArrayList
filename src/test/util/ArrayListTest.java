@@ -5,9 +5,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-import java.util.Random;
-import java.util.SimpleTimeZone;
+import java.util.*;
 
 class ArrayListTest {
 
@@ -696,5 +694,142 @@ class ArrayListTest {
     void containsAll_WithNotEmptyListAndNotEmptyCollection_False() {
         util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 0, 0, null));
         Assertions.assertFalse(list.containsAll(Arrays.asList(null, 0, 11, null, -1)));
+    }
+
+    @Test
+    void iteratorHasNext_WithNoElements_False() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        Assertions.assertFalse(list.iterator().hasNext());
+    }
+
+    @Test
+    void iteratorHasNext_WithOneElement_True() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13));
+        util.Iterator<Integer> it = list.iterator();
+        Assertions.assertTrue(it.hasNext());
+    }
+
+    @Test
+    void iteratorHasNext_WithOneElementAfterNextCalled_False() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13));
+        util.Iterator<Integer> it = list.iterator();
+        it.next();
+        Assertions.assertFalse(it.hasNext());
+    }
+
+    @Test
+    void iteratorHasNext_WithSeveralElements_True() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(null, 0, 0, 11));
+        Assertions.assertTrue(list.iterator().hasNext());
+    }
+
+    @Test
+    void iteratorNext_WithNoElements_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        Assertions.assertThrows(
+                NoSuchElementException.class,
+                () -> list.iterator().next(),
+                "Expected iterator().next() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void iteratorNext_WithOneElement_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(0));
+        Assertions.assertEquals(0, list.iterator().next());
+    }
+
+    @Test
+    void iteratorNext_CallNextTwoTimesWithOneElement_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(0));
+        util.Iterator<Integer> it = list.iterator();
+        Assertions.assertEquals(0, it.next());
+        Assertions.assertThrows(
+                NoSuchElementException.class,
+                () -> it.next(),
+                "Expected it.next() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void iteratorNext_WithSeveralElements_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(null, 11, 0));
+        util.Iterator<Integer> it = list.iterator();
+        Assertions.assertEquals(null, it.next());
+        Assertions.assertEquals(11, it.next());
+        Assertions.assertEquals(0, it.next());
+    }
+
+    @Test
+    void iteratorRemove_WithNoNextCalledAndNoElements_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> list.iterator().remove(),
+                "Expected iterator().remove() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void iteratorRemove_WithNoNextCalledAndSeveralElementsInList_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, 0, -1));
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> list.iterator().remove(),
+                "Expected iterator().remove() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void iteratorRemove_WithNextCalledAndOneElement_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11));
+        util.Iterator<Integer> it = list.iterator();
+        it.next();
+        it.remove();
+        Assertions.assertEquals(0, list.size());
+    }
+
+    @Test
+    void iteratorRemove_TwoTimesAfterNextCalledAndOneElement_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11));
+        util.Iterator<Integer> it = list.iterator();
+        it.next();
+        it.remove();
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> it.remove(),
+                "Expected iterator().remove() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void forEachRemaining_NoElements_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        util.Iterator<Integer> it = list.iterator();
+        it.forEachRemaining(el -> Assertions.assertFalse(false));
+    }
+
+    @Test
+    void forEachRemaining_OneElement_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11));
+        util.Iterator<Integer> it = list.iterator();
+        it.forEachRemaining(el -> Assertions.assertEquals(11, el));
+    }
+
+    @Test
+    void forEachRemaining_SeveralElements_Success() {
+        util.ArrayList<StringBuilder> actual = new util.ArrayList<>(Arrays.asList(
+                new StringBuilder("a"),
+                new StringBuilder("b"),
+                new StringBuilder("c"),
+                new StringBuilder("d")));
+        util.ArrayList<StringBuilder> expected = new util.ArrayList<>(Arrays.asList(
+                new StringBuilder("b"),
+                new StringBuilder("c"),
+                new StringBuilder("d"),
+                new StringBuilder("e")));
+        util.Iterator<StringBuilder> it = actual.iterator();
+        it.forEachRemaining(el -> el.setCharAt(0, (char)(el.charAt(0) + 1)));
+        Assertions.assertEquals(expected.toString(), actual.toString());
     }
 }
