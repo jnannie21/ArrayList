@@ -18,13 +18,6 @@ class ArrayListTest {
     }
 
     @Test
-    void testForEqualityOfEmptyArrayLists() {
-        util.ArrayList<Integer> list1 = new util.ArrayList<>();
-        util.ArrayList<Integer> list2 = new util.ArrayList<>();
-        Assertions.assertEquals(list1, list2);
-    }
-
-    @Test
     void constructor_ConstructingWithCollectionWhichContainsNullElement_Success() {
         util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, null, -1));
         Assertions.assertEquals(3, list.size());
@@ -35,6 +28,13 @@ class ArrayListTest {
     void constructor_ConstructingWithEmptyCollection_Success() {
         util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList());
         Assertions.assertEquals(0, list.size());
+    }
+
+    @Test
+    void constructor_ConstructingWithOneElementCollection_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Collections.singletonList(null));
+        Assertions.assertEquals(1, list.size());
+        Assertions.assertEquals(null, list.get(0));
     }
 
     @Test
@@ -58,6 +58,13 @@ class ArrayListTest {
     void equals_CheckEqualityOfEmptyLists_Success() {
         util.ArrayList<Integer> list1 = new util.ArrayList<>();
         util.ArrayList<Integer> list2 = new util.ArrayList<>();
+        Assertions.assertTrue(list1.equals(list2));
+    }
+
+    @Test
+    void equals_CheckEqualityOfOneElementLists_Success() {
+        util.ArrayList<Integer> list1 = new util.ArrayList<>(Collections.singletonList(null));
+        util.ArrayList<Integer> list2 = new util.ArrayList<>(Collections.singletonList(null));
         Assertions.assertTrue(list1.equals(list2));
     }
 
