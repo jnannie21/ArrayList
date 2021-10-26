@@ -111,9 +111,9 @@ public class ArrayList<E> implements util.List<E> {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (!(o instanceof util.List))
+        if (!(o instanceof List))
             return false;
-        util.List<E> list = (util.List<E>) o;
+        List<E> list = (List<E>) o;
         if (size != list.size())
             return false;
         for (int idx = 0; idx < size; idx++) {
@@ -565,7 +565,7 @@ public class ArrayList<E> implements util.List<E> {
     /**
      * This list's {@link Iterator java.lang.Iterator} implementation.
      */
-    private class Itr implements util.Iterator<E> {
+    private class Itr implements Iterator<E> {
         private int current = -1;
         private boolean isNextCalled = false;
         private int savedModCount = modCount;
