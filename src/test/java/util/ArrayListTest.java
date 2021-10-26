@@ -47,6 +47,14 @@ class ArrayListTest {
     }
 
     @Test
+    void constructor_ConstructingZeroCapacity_DoesntThrow() {
+        Assertions.assertDoesNotThrow(
+                () -> new util.ArrayList<>(0),
+                "Expected new util.ArrayList<>(0) does not throw, but it throws"
+        );
+    }
+
+    @Test
     void equals_CheckEqualityOfEmptyLists_Success() {
         util.ArrayList<Integer> list1 = new util.ArrayList<>();
         util.ArrayList<Integer> list2 = new util.ArrayList<>();
@@ -876,6 +884,41 @@ class ArrayListTest {
                 ConcurrentModificationException.class,
                 () -> it.next(),
                 "Expected iterator().next() after list.ensureCapacity() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void modCount_AfterSettingLowCapacityWithDefaultList_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        util.Iterator<Integer> it = list.iterator();
+        list.ensureCapacity(1);
+        Assertions.assertThrows(
+                ConcurrentModificationException.class,
+                () -> it.next(),
+                "Expected iterator().next() after list.ensureCapacity() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void modCount_AfterSettingLowCapacity_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, 0));
+        util.Iterator<Integer> it = list.iterator();
+        list.ensureCapacity(1);
+        Assertions.assertThrows(
+                ConcurrentModificationException.class,
+                () -> it.next(),
+                "Expected iterator().next() after list.ensureCapacity() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void modCount_AfterEnsureCapacityWithZero_ExceptionNotThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, 0));
+        util.Iterator<Integer> it = list.iterator();
+        list.ensureCapacity(0);
+        Assertions.assertDoesNotThrow(
+                () -> it.next(),
+                "Expected iterator().next() after list.ensureCapacity() not throw, but it throws"
         );
     }
 
