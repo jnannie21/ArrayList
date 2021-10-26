@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
- * Implementation of {@link ArrayList lava.util.ArrayList}
+ * Implementation of {@link ArrayList java.util.ArrayList}
  * @param <E> Type of elements
  * @author Dmitry Polushkin
  * @see ArrayList
@@ -27,6 +27,11 @@ public class ArrayList<E> implements util.List<E> {
      * Default constructor's initial capacity.
      */
     private static final int DEFAULT_INITIAL_CAPACITY = 10;
+
+    /**
+     * Amount of structural modifications.
+     */
+    private int modCount = 0;
 
     /**
      * Default constructor.
@@ -75,7 +80,7 @@ public class ArrayList<E> implements util.List<E> {
      * @throws IndexOutOfBoundsException if index < 0 or index > size.
      */
     public void add(int index, E element) {
-        ensureCapacity(size + 1);
+        internalEnsureCapacity(size + 1);
         System.arraycopy(elementData, index, elementData, index + 1, size - index);
         elementData[index] = element;
         size++;
@@ -119,7 +124,7 @@ public class ArrayList<E> implements util.List<E> {
     }
 
     /**
-     * The same implementation as in {@link List#hashCode() lava.util.List.hashCode()}.
+     * The same implementation as in {@link List#hashCode() java.util.List.hashCode()}.
      * @return generated hash code.
      */
     @Override
@@ -138,6 +143,7 @@ public class ArrayList<E> implements util.List<E> {
     public void ensureCapacity(int minCapacity) {
         int newCapacity;
         if (minCapacity > elementData.length) {
+            modCount++;
             int growth = elementData.length / 2 + 1;
             if (Integer.MAX_VALUE - elementData.length < growth) {
                 newCapacity = Integer.MAX_VALUE;
@@ -153,6 +159,14 @@ public class ArrayList<E> implements util.List<E> {
         }
     }
 
+    private void internalEnsureCapacity(int minCapacity) {
+        if (minCapacity > elementData.length) {
+            ensureCapacity(minCapacity);
+        } else {
+            modCount++;
+        }
+    }
+
     /**
      * Removes element at specified index.
      * @param index index.
@@ -163,6 +177,7 @@ public class ArrayList<E> implements util.List<E> {
         if (index >= size) {
             throw new IndexOutOfBoundsException();
         }
+        modCount++;
         int toMove = size - index - 1;
         System.arraycopy(elementData, index + 1, elementData, index, toMove);
         size--;
@@ -178,13 +193,12 @@ public class ArrayList<E> implements util.List<E> {
      * @return true if element is found, false otherwise.
      */
     public boolean remove(Object o) {
-        for (int index = 0; index < elementData.length; index++) {
-            if (isElementsEqual(elementData[index], o)) {
-                remove(index);
-                return true;
-            }
+        int idx = indexOf(o);
+        if (idx == -1) {
+            return false;
         }
-        return false;
+        remove(idx);
+        return true;
     }
 
     /**
@@ -220,6 +234,7 @@ public class ArrayList<E> implements util.List<E> {
         if (c == null) {
             c = (o1, o2) -> ((Comparable)o1).compareTo((Comparable)o2);
         }
+        modCount++;
         if (checkIfListAlreadySorted(c)) {
             return ;
         }
@@ -324,6 +339,7 @@ public class ArrayList<E> implements util.List<E> {
      * Will not change current list capacity.
      */
     public void clear() {
+        modCount++;
         for (int idx = 0; idx < size; idx++) {
             elementData[idx] = null;
         }
@@ -345,7 +361,7 @@ public class ArrayList<E> implements util.List<E> {
     }
 
     /**
-     * Returns index of specified Object if it is in the list, -1 otherwise.
+     * Returns index of first occurrence of specified Object if it is in the list, -1 otherwise.
      * @param o object to find.
      * @return index of element if found, -1 otherwise.
      */
@@ -399,15 +415,19 @@ public class ArrayList<E> implements util.List<E> {
     public <E> E[] toArray(E[] a) {
         if (a.length >= size) {
             System.arraycopy(elementData,0, a, 0, size);
+            for (int i = size; i < a.length; i++) {
+                a[i] = null;
+            }
             return a;
         }
-        return (E[])Arrays.copyOf(elementData, size);
+        return (E[])toArray();
     }
 
     /**
      * Makes capacity of this list equal to size.
      */
     public void trimToSize() {
+        modCount++;
         if (elementData.length > size) {
             elementData = Arrays.copyOf(elementData, size);
         }
@@ -420,10 +440,7 @@ public class ArrayList<E> implements util.List<E> {
      * @throws NullPointerException if specified collection is null.
      */
     public boolean addAll(Collection<? extends E> c) {
-        for (E e : c) {
-            add(e);
-        }
-        return true;
+        return addAll(size, c);
     }
 
     /**
@@ -439,11 +456,8 @@ public class ArrayList<E> implements util.List<E> {
         if (index > size) {
             throw new IndexOutOfBoundsException();
         }
-        int collectionLength = 0;
-        for (E e : c) {
-            collectionLength++;
-        }
-        ensureCapacity(collectionLength + size);
+        int collectionLength = c.size();
+        internalEnsureCapacity(collectionLength + size);
         System.arraycopy(elementData, index, elementData, index + collectionLength, size - index);
         for (E e : c) {
             elementData[index++] = e;
@@ -531,14 +545,6 @@ public class ArrayList<E> implements util.List<E> {
     }
 
     /**
-     * Get this list's java.lang.Iterator implementation.
-     * @return iterator to iterate over this list.
-     */
-    public Iterator<E> iterator() {
-        return new Itr();
-    }
-
-    /**
      * Element comparison as in java.util.ArrayList
      * @param o1 first element to compare.
      * @param o2 second element to compare.
@@ -549,30 +555,47 @@ public class ArrayList<E> implements util.List<E> {
     }
 
     /**
-     * This list's java.lang.Iterator implementation.
+     * Get this list's java.lang.Iterator implementation.
+     * @return iterator to iterate over this list.
+     */
+    public Iterator<E> iterator() {
+        return new Itr();
+    }
+
+    /**
+     * This list's {@link Iterator java.lang.Iterator} implementation.
      */
     private class Itr implements util.Iterator<E> {
-        private int current = 0;
-        private int last = -1;
+        private int current = -1;
+        private boolean isNextCalled = false;
+        private int savedModCount = modCount;
 
         public boolean	hasNext() {
-            return current < size;
+            return current + 1 < size;
         }
 
         public E next() {
-            if (current >= size) {
+            checkForConcurrentModification();
+            if (current + 1 >= size) {
                 throw new NoSuchElementException();
             }
-            last = current;
-            return elementData[current++];
+            isNextCalled = true;
+            return elementData[++current];
         }
 
         public void remove() {
-            if (last == -1) {
+            if (!isNextCalled) {
                 throw new IllegalStateException();
             }
-            ArrayList.this.remove(last);
-            last = -1;
+            checkForConcurrentModification();
+            ArrayList.this.remove(current);
+            isNextCalled = false;
+        }
+
+        private void checkForConcurrentModification() {
+            if (modCount != savedModCount) {
+                throw new ConcurrentModificationException();
+            }
         }
     }
 }
