@@ -266,7 +266,6 @@ public class ArrayList<E> implements util.List<E> {
         while (idx != pivotIdx) {
             if ((idx < pivotIdx && c.compare(elements[idx], elements[pivotIdx]) > 0) ||
                     (idx > pivotIdx && c.compare(elements[idx], elements[pivotIdx]) <= 0)) {
-
                 swapElements(idx, pivotIdx);
                 int tmp = idx;
                 idx = pivotIdx;
@@ -304,7 +303,7 @@ public class ArrayList<E> implements util.List<E> {
 
         // middle, first ? last
         if (c.compare(elementData[last], elementData[first]) > 0) {
-            return last; //middle, first, last
+            return first; //middle, first, last
         }
         return (c.compare(elementData[last], elementData[middle]) > 0) ? last : middle;
     }
