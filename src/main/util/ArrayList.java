@@ -80,7 +80,7 @@ public class ArrayList<E> implements util.List<E> {
      * @throws IndexOutOfBoundsException if index < 0 or index > size.
      */
     public void add(int index, E element) {
-        internalEnsureCapacity(size + 1);
+        ensureCapacity(size + 1);
         System.arraycopy(elementData, index, elementData, index + 1, size - index);
         elementData[index] = element;
         size++;
@@ -142,8 +142,10 @@ public class ArrayList<E> implements util.List<E> {
      */
     public void ensureCapacity(int minCapacity) {
         int newCapacity;
-        if (minCapacity > elementData.length) {
+        if (minCapacity > 0) {
             modCount++;
+        }
+        if (minCapacity > elementData.length) {
             int growth = elementData.length / 2 + 1;
             if (Integer.MAX_VALUE - elementData.length < growth) {
                 newCapacity = Integer.MAX_VALUE;
@@ -156,14 +158,6 @@ public class ArrayList<E> implements util.List<E> {
             E[] oldData = elementData;
             elementData = (E[])new Object[newCapacity];
             System.arraycopy(oldData, 0, elementData, 0, oldData.length);
-        }
-    }
-
-    private void internalEnsureCapacity(int minCapacity) {
-        if (minCapacity > elementData.length) {
-            ensureCapacity(minCapacity);
-        } else {
-            modCount++;
         }
     }
 
@@ -457,7 +451,7 @@ public class ArrayList<E> implements util.List<E> {
             throw new IndexOutOfBoundsException();
         }
         int collectionLength = c.size();
-        internalEnsureCapacity(collectionLength + size);
+        ensureCapacity(collectionLength + size);
         System.arraycopy(elementData, index, elementData, index + collectionLength, size - index);
         for (E e : c) {
             elementData[index++] = e;
