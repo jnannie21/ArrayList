@@ -423,10 +423,20 @@ class ArrayListTest {
     }
 
     @Test
-    void toArray_CheckWithArrayAsArgumentWithNotEmptyList_Success() {
+    void toArray_CheckWithExactSizeArrayAsArgumentWithNotEmptyList_Success() {
         util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11, 13, null, null));
-        Integer[] expected = new Integer[10];
+        Integer[] expected = new Integer[4];
         Assertions.assertTrue(expected == list.toArray(expected));
+        Assertions.assertEquals(null, expected[3]);
+    }
+
+    @Test
+    void toArray_CheckWithBiggerSizeArrayAsArgumentWithNotEmptyList_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(0, -1, null, 11));
+        Integer[] expected = new Integer[10];
+        expected[5] = 13;
+        Assertions.assertTrue(expected == list.toArray(expected));
+        Assertions.assertEquals(11, expected[3]);
         Assertions.assertEquals(null, expected[4]);
     }
 
@@ -803,21 +813,21 @@ class ArrayListTest {
     }
 
     @Test
-    void forEachRemaining_NoElements_Success() {
+    void iteratorForEachRemaining_NoElements_Success() {
         util.ArrayList<Integer> list = new util.ArrayList<>();
         util.Iterator<Integer> it = list.iterator();
         it.forEachRemaining(el -> Assertions.assertFalse(false));
     }
 
     @Test
-    void forEachRemaining_OneElement_Success() {
+    void iteratorForEachRemaining_OneElement_Success() {
         util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(11));
         util.Iterator<Integer> it = list.iterator();
         it.forEachRemaining(el -> Assertions.assertEquals(11, el));
     }
 
     @Test
-    void forEachRemaining_SeveralElements_Success() {
+    void iteratorForEachRemaining_SeveralElements_Success() {
         util.ArrayList<StringBuilder> actual = new util.ArrayList<>(Arrays.asList(
                 new StringBuilder("a"),
                 new StringBuilder("b"),
@@ -831,5 +841,109 @@ class ArrayListTest {
         util.Iterator<StringBuilder> it = actual.iterator();
         it.forEachRemaining(el -> el.setCharAt(0, (char)(el.charAt(0) + 1)));
         Assertions.assertEquals(expected.toString(), actual.toString());
+    }
+
+    @Test
+    void modCount_WhenAddElement_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>();
+        util.Iterator<Integer> it = list.iterator();
+        list.add(13);
+        Assertions.assertThrows(
+                ConcurrentModificationException.class,
+                () -> it.next(),
+                "Expected iterator().next() after list.add() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void modCount_WhenRemoveElement_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, 0));
+        util.Iterator<Integer> it = list.iterator();
+        list.remove(0);
+        Assertions.assertThrows(
+                ConcurrentModificationException.class,
+                () -> it.next(),
+                "Expected iterator().next() after list.remove() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void modCount_AfterIncreasingCapacity_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, 0));
+        util.Iterator<Integer> it = list.iterator();
+        list.ensureCapacity(20);
+        Assertions.assertThrows(
+                ConcurrentModificationException.class,
+                () -> it.next(),
+                "Expected iterator().next() after list.ensureCapacity() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void modCount_AfterAddAll_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, 0));
+        util.Iterator<Integer> it = list.iterator();
+        list.addAll(Arrays.asList(null, -1));
+        Assertions.assertThrows(
+                ConcurrentModificationException.class,
+                () -> it.next(),
+                "Expected iterator().next() after list.addAll() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void modCount_AfterRemoveAllOneMatch_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, 0));
+        util.Iterator<Integer> it = list.iterator();
+        list.removeAll(Arrays.asList(null, 0));
+        Assertions.assertThrows(
+                ConcurrentModificationException.class,
+                () -> it.next(),
+                "Expected iterator().next() after list.removeAll() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void modCount_AfterRemoveAllNoMatch_Success() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, 0));
+        util.Iterator<Integer> it = list.iterator();
+        list.removeAll(Arrays.asList(null, 11));
+        Assertions.assertEquals(13, it.next());
+    }
+
+    @Test
+    void modCount_AfterSort_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, 0));
+        util.Iterator<Integer> it = list.iterator();
+        list.sort(null);
+        Assertions.assertThrows(
+                ConcurrentModificationException.class,
+                () -> it.next(),
+                "Expected iterator().next() after list.sort() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void modCount_AfterRemoveIf_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, 0, null));
+        util.Iterator<Integer> it = list.iterator();
+        list.removeIf(el -> el == null);
+        Assertions.assertThrows(
+                ConcurrentModificationException.class,
+                () -> it.next(),
+                "Expected iterator().next() after list.removeIf() to throw, but it didn't"
+        );
+    }
+
+    @Test
+    void modCount_AfterTrimToSize_ExceptionThrown() {
+        util.ArrayList<Integer> list = new util.ArrayList<>(Arrays.asList(13, 0, null));
+        util.Iterator<Integer> it = list.iterator();
+        list.trimToSize();
+        Assertions.assertThrows(
+                ConcurrentModificationException.class,
+                () -> it.next(),
+                "Expected iterator().next() after list.trimToSize() to throw, but it didn't"
+        );
     }
 }
